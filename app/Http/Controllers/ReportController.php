@@ -53,7 +53,7 @@ class ReportController extends Controller
         
         $request->validate([
             'type' => 'required|in:students,enrollments,courses',
-            'filters' => 'sometimes|string'
+            'filters' => 'sometimes|array'
         ]);
 
         $type = $request->input('type');
@@ -68,25 +68,31 @@ class ReportController extends Controller
         }
 
         try {
-            // Generate a preview with limited data (first 10 records)
-            $filters['limit'] = 10;
+            // Get total count first (without limit)
+            $totalCount = $this->getTotalCount($type, $filters);
+            
+            // Generate report and limit to 10 records for preview
             $report = $this->reportService->generateReportByType($type, $filters, 'json');
+            $report = array_slice($report, 0, 10);
+            $showing = count($report);
             
             return response()->json([
                 'success' => true,
                 'preview' => $report,
+                'total_records' => $totalCount,
+                'showing' => $showing,
                 'data' => $report,
                 'type' => $type,
                 'metadata' => [
                     'type' => $type,
                     'filters' => $filters,
                     'preview' => true,
-                    'record_count' => count($report),
-                    'total_available' => $this->getTotalCount($type, $filters)
+                    'record_count' => $showing,
+                    'total_available' => $totalCount
                 ],
-                'message' => count($report) > 10 ? 
-                    "Preview showing first 10 of {$this->getTotalCount($type, $filters)} records. Use 'Generate Report' to see all data." : 
-                    "Preview showing all " . count($report) . " records."
+                'message' => $showing > 10 ? 
+                    "Preview showing first 10 of {$totalCount} records. Use 'Generate Report' to see all data." : 
+                    "Preview showing all " . $showing . " records."
             ]);
 
         } catch (\Exception $e) {
@@ -124,7 +130,7 @@ class ReportController extends Controller
         $request->validate([
             'type' => 'required|in:students,enrollments,courses',
             'format' => 'required|in:json,csv,html',
-            'filters' => 'sometimes|string'
+            'filters' => 'sometimes|array'
         ]);
 
         $type = $request->input('type');
@@ -188,7 +194,7 @@ class ReportController extends Controller
         $request->validate([
             'type' => 'required|in:students,enrollments,courses',
             'format' => 'required|in:json,csv,html',
-            'filters' => 'sometimes|string'
+            'filters' => 'sometimes|array'
         ]);
 
         try {
@@ -257,7 +263,7 @@ class ReportController extends Controller
         $formats = $this->reportService->getAvailableFormats();
         
         return response()->json([
-            'reportTypes' => $reportTypes,
+            'types' => $reportTypes,
             'formats' => $formats
         ]);
     }
