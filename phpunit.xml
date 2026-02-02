@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+  <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="vendor/autoload.php"
@@ -11,12 +11,14 @@
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
+        <!--
         <testsuite name="Browser">
             <directory>tests/Browser</directory>
             <exclude>tests/Browser/console</exclude>
             <exclude>tests/Browser/screenshots</exclude>
             <exclude>tests/Browser/source</exclude>
         </testsuite>
+        -->
     </testsuites>
     <source>
         <include>

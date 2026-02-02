@@ -51,6 +51,15 @@ class ReportController extends Controller
         $user = auth()->user();
         $isAdmin = $user->role === 'Admin';
         
+        // Pre-process filters: if JSON string, decode it so validation sees an array
+        $filters = $request->input('filters');
+        if (is_string($filters)) {
+            $decoded = json_decode($filters, true);
+            if (is_array($decoded)) {
+                $request->merge(['filters' => $decoded]);
+            }
+        }
+        
         $request->validate([
             'type' => 'required|in:students,enrollments,courses',
             'filters' => 'sometimes|array'
@@ -127,6 +136,15 @@ class ReportController extends Controller
         $user = auth()->user();
         $isAdmin = $user->role === 'Admin';
         
+        // Pre-process filters: if JSON string, decode it so validation sees an array
+        $filters = $request->input('filters');
+        if (is_string($filters)) {
+            $decoded = json_decode($filters, true);
+            if (is_array($decoded)) {
+                $request->merge(['filters' => $decoded]);
+            }
+        }
+        
         $request->validate([
             'type' => 'required|in:students,enrollments,courses',
             'format' => 'required|in:json,csv,html',
@@ -191,6 +209,15 @@ class ReportController extends Controller
      */
     public function export(Request $request): BinaryFileResponse|RedirectResponse|JsonResponse|Response
     {
+        // Pre-process filters: if JSON string, decode it so validation sees an array
+        $filters = $request->input('filters');
+        if (is_string($filters)) {
+            $decoded = json_decode($filters, true);
+            if (is_array($decoded)) {
+                $request->merge(['filters' => $decoded]);
+            }
+        }
+
         $request->validate([
             'type' => 'required|in:students,enrollments,courses',
             'format' => 'required|in:json,csv,html',

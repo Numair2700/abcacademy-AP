@@ -381,5 +381,24 @@ class ReportControllerTest extends TestCase
         $response->assertHeader('content-disposition');
         $this->assertStringContainsString('attachment', $response->headers->get('content-disposition'));
     }
+
+    /** @test */
+    public function admin_can_generate_report_with_filters_as_json_string()
+    {
+        $admin = User::factory()->create(['role' => 'Admin']);
+        $program = Program::factory()->create();
+        $course = Course::factory()->create(['program_id' => $program->id]);
+
+        $response = $this->actingAs($admin)
+            ->postJson(route('reports.generate'), [
+                'type' => 'courses',
+                'format' => 'json',
+                'filters' => json_encode(['program_id' => $program->id]) // Sending as string
+            ]);
+
+        $response->assertOk();
+        $responseData = $response->json();
+        $this->assertTrue($responseData['success']);
+    }
 }
 
